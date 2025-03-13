@@ -1,4 +1,4 @@
-package infra
+package httpserv
 
 import (
 	"context"
