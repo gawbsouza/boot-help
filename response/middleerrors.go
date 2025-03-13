@@ -37,6 +37,13 @@ func (r *Response) ConditionErr(message string) *Response {
 	return r
 }
 
+func (r *Response) UnprocessableErr(message string) *Response {
+	if r != nil {
+		r.err = httperr.Unprocessable(message)
+	}
+	return r
+}
+
 func (r *Response) InternalErr(message string) *Response {
 	if r != nil {
 		r.err = httperr.Internal(message)
