@@ -13,7 +13,6 @@ import (
 )
 
 const (
-	ServerAddress   = ":8000"
 	ShutdownTimeout = 5 * time.Second
 )
 
