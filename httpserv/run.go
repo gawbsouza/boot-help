@@ -47,7 +47,7 @@ func handleShutdown(server *http.Server) {
 }
 
 // Listen and serve a http.Handler (for example, chi.NewRouter()) and handles server shutdown
-func RunServer(port int, handler http.Handler) {
+func Run(port int, handler http.Handler) {
 	addr := fmt.Sprintf(":%d", port)
 
 	server := &http.Server{
