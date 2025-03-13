@@ -23,7 +23,7 @@ var (
 //
 //	func SumHandler() http.HandlerFunc {
 //		return func(w http.ResponseWriter, r *http.Request) {
-//			dto, err := DecodeAndValidateJSON[SumDTO](r)
+//			dto, err := request.DecodeAndValidateJSON[SumDTO](r)
 //
 //			if err != nil {
 //				response.To(w).Err(httperr.Bad("Invalid SumDTO")).SendJSON()
