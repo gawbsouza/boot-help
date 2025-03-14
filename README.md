@@ -4,9 +4,10 @@
 
 # Boot-Help
 
-Tornando a vida do bootcamper mais simples :) 
+Tornando a vida do bootcamper mais simples :)
 
 ---
+
 <br>
 
 ⚠️ Boot-Help está em construção, a maneira de utilizá-lo pode sofrer alterações.
@@ -16,31 +17,32 @@ Tornando a vida do bootcamper mais simples :)
 Boot-Help tem como objetivo facilitar o trabalho Web com Go quando utilizamos a biblioteca [Chi](https://github.com/go-chi/chi), provê uma maneira mais simples de trabalhar com erros e respostas HTTP.
 
 ## Comece instalando:
+
 ```sh
 go get github.com/gawbsouza/boot-help
 ```
 
-
 ## Trabalhando com erros
+
 Para facilitar o trabalho com erros o pacote `httperr` possui diversas funcionalidades.
 
 ### Formato padronizado
 
 Por padrão o Boot-Help formata os seus erros na seguinte estrutura:
 
- ```go
+```go
 type HttpError struct {
 	StatusCode int    // Status code na resposta HTTP
 	Message    string // Mensagem principal do erro
 	Details    string // Adicionar mais detalhes ao erro
 }
- ```
+```
 
- ### Criando erros
+### Criando erros
 
- O pacote `httperr` possui construtores para erros de vários tipos, assim é possível criar erros de maneira padronizada e com pouco esforço.
+O pacote `httperr` possui construtores para erros de vários tipos, assim é possível criar erros de maneira padronizada e com pouco esforço.
 
- ```go
+```go
 // Retorna um HttpError com StatusCode 400 e uma Message customizada
 httperr.Bad("dados inválidos")
 
@@ -55,13 +57,13 @@ httperr.Condition("usuario precisa estar habilitado")
 
 // Retorna um HttpError com StatusCode 500 e uma Message customizada
 httperr.Internal("erro interno")
- ```
+```
 
- ### Adicionando mais detalhes
+### Adicionando mais detalhes
 
- Com o erro criado é possível adicionar mais detalhes ao erro caso seja necessário.
+Com o erro criado é possível adicionar mais detalhes ao erro caso seja necessário.
 
- ```go
+```go
 // Retorna um HttpError com StatusCode, Message e Details peenchidos
 httperr.Bad("nome inválido").WithDetails("precisa ter ao menos 3 caracteres")
 
@@ -75,12 +77,14 @@ httperr.Bad("nome inválido").WithDetails("precisa ter ao menos 3 caracteres")
 httperr.NotFound("").WithDetails("")
 httperr.Internal("").WithDetails("")
 httperr.Conflict("").WithDetails("")
- ```
+```
+
 ## Resposta HTTP
 
 Para facilitar o retorno de resposta HTTP o pacote `response` possui diversas funcionalidades.
 
 ### Criando novas respostas HTTP
+
 ```go
 func main() {
 	rt := chi.NewRouter()
@@ -93,7 +97,9 @@ func main() {
 	log.Fatal(http.ListenAndServe(":80", rt))
 }
 ```
+
 Resposta
+
 ```
 HTTP/1.1 200 OK
 Content-Type: text/plain; charset=utf-8
@@ -103,7 +109,9 @@ Connection: close
 
 Hello from Boot-Help!
 ```
+
 Aqui temos algumas dicas de como utilizar os métodos disponíveis:
+
 ```go
 // .To() para criar um Response e configurar o ResponseWriter onde o a resposta HTTP será escrita, tudo começa a partir daqui!
 response.To(w)
@@ -123,6 +131,7 @@ response.To(w).Header("key", "value")
 // .Headers() para adicionar várias entradas no header da resposta HTTP, deve ser informado em formato map[string]string
 response.To(w).Headers(map[string]string{"key":"value"})
 ```
+
 ### Enviando respostas HTTP
 
 Após criado a Response como coms métodos anteriores é hora de enviar a resposta, utilize os seguintes métodos para realizar e finalizar o envio.
@@ -152,7 +161,9 @@ O pacote `response` possui integração com os erros de `httperr` e facilita a c
 notFoundErr := httperr.NotFound("usuário não encontrado")
 response.To(w).Err(notFoundErr).SendJSON()
 ```
+
 Resposta
+
 ```
 HTTP/1.1 404 Not Found
 Content-Type: application/json; charset=utf-8
@@ -189,3 +200,79 @@ response.To(w).ConditionErr("mensagem")
 response.To(w).InternalErr("mensagem")
 ```
 
+## Requisições HTTP
+
+Para facilitar a recepção da requisição HTTP o pacote `request` possui diversas funcionalidades.
+
+### Criando novas requisições HTTP
+
+```go
+type Product struct {
+	Name  string  `json:"name"`
+	Price float64 `json:"price"`
+}
+
+func main() {
+	rt := chi.NewRouter()
+
+	rt.Post("/", func(w http.ResponseWriter, r *http.Request) {
+		var input Product
+
+		if err := request.From(r).ParseJSON(&input); err != nil {
+			response.To(w).BadErr(err.Error()).Send()
+			return
+		}
+
+		response.To(w).Content(input).SendJSON()
+	})
+
+	if err := http.ListenAndServe(":3030", rt); err != nil {
+		panic(err)
+	}
+}
+```
+
+Resposta
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Date: Thu, 13 Mar 2025 19:02:27 GMT
+Content-Length: 25
+Connection: close
+
+{
+  "name": "Gopher",
+  "price": 12.2
+}
+```
+
+Aqui temos algumas dicas de como utilizar os métodos disponíveis:
+
+```go
+// .From() para criar um Request e configurar o http.Request onde a requisição HTTP será recebida, tudo começa a partir daqui!
+request.From(r)
+
+// .ParseJSON() para converter o valor recebido no corpo da requisição em uma struct
+request.From(w).ParseJSON(&object)
+
+// .ParseValidJSON() para converter o valor recebido no corpo da requisição em uma struct e verificar se os valores das propriedades condizem com as validações requisitadas
+request.From(w).ParseValidJSON(&object)
+```
+
+### Requisição HTTP com erros
+
+O pacote `request` possui retorno genérico para os erros.
+
+```go
+// Implementando request com ParseJSON
+// err será uma saida do tipo error
+err := request.From(r).ParseJSON(&input)
+
+// Implementando request com ParseValidJSON
+// val será uma saida do tipo []string com as mensagens de validação
+// err será um saida do tipo error
+val, err := request.From(r).ParseValidJSON(&input)
+//Your logic here...
+
+```

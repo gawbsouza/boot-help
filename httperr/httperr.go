@@ -64,6 +64,14 @@ func Condition(message string) *HttpError {
 	}
 }
 
+// Create a new HttpError with StatusCode 422 and a custom message
+func Unprocessable(message string) *HttpError {
+	return &HttpError{
+		StatusCode: http.StatusUnprocessableEntity,
+		Message:    message,
+	}
+}
+
 // Create a new HttpError with StatusCode 500 and a custom message
 func Internal(message string) *HttpError {
 	return &HttpError{
