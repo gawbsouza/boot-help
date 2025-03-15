@@ -276,3 +276,41 @@ val, err := request.From(r).ParseValidJSON(&input)
 //Your logic here...
 
 ```
+
+## Servidor Chi HTTP
+
+Para facilitar a criação de um servidor HTTP utilizando o multiplexador CHI o pacote `chiserv` possui diversas funcionalidades.
+
+### Criando um novo servidor HTTP Chi
+
+```go
+func main() {
+	//Criando o servidor Chi com as porta desejada
+	cs := chiserv.NewServerChi(8080)
+
+	//Adicionando endpoints ao nosso servidor Chi
+	sc.RegisterHandler("/", http.MethodGet, handler.Get)
+
+	//Iniciando nosso servidor Chi
+	sc.Start()
+}
+```
+
+### Servidor HTTP Chi com middlewares
+
+O pacote `chiserv` possui métodos que permitem registrar middlewares para endpoints especificos ou de maneira global.
+
+```go
+//Implementando um middleware no escopo global
+sc.UseGlobalMiddlewares(middleware.Logger)
+
+//Implementando diversos middlewares no escopo global
+sc.UseGlobalMiddlewares(middleware.Logger, middleware.GetHead, middleware.Timeout(time.Second * 5))
+
+//Implementando middleware no escopo de um endpoint especifico
+sc.RegisterHandler("/", http.MethodGet, handler.Get).SetMiddlewares(middleware.Logger)
+
+//Implementando diversos middlewares no escopo de um endpoint especifico
+sc.RegisterHandler("/", http.MethodGet, handler.Get).SetMiddlewares(middleware.Logger, middleware.GetHead, middleware.Timeout(time.Second * 5))
+
+```
